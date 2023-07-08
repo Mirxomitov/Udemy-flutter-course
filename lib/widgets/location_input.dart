@@ -6,34 +6,44 @@ import 'package:location/location.dart';
 
 import 'package:favorite_places/models/places.dart';
 import 'package:favorite_places/screens/map.dart';
+
 class LocationInput extends StatefulWidget {
   const LocationInput({super.key, required this.onSelectPlace});
- 
-  final Function onSelectPlace; 
- 
+
+  final Function onSelectPlace;
+
   @override
   State<LocationInput> createState() {
     return _LocationInputState();
   }
 }
- 
+
 class _LocationInputState extends State<LocationInput> {
   PlaceLocation? _pickedLocation;
   late final MapController mapController;
   var _isGettingLocation = false;
- 
+
+  // String get locationImage {
+  //   if (_pickedLocation == null) {
+  //     return '';
+  //   }
+  //   final lat = _pickedLocation!.latitude;
+  //   final lng = _pickedLocation!.longitude;
+  //   return 'https://maps.googleapis.com/maps/api/staticmap?center=$lat,$lng=&zoom=16&size=600x300&maptype=roadmap&markers=color:red%7Clabel:A%7C$lat,$lng&key=AIzaSyDLcwxUggpPZo8lcbH0TB4Crq5SJjtj4ag';
+  // }
+
   @override
   void initState() {
     mapController = MapController();
     super.initState();
   }
- 
+
   Future<List> getLocationAddress(double latitude, double longitude) async {
     List<Placemark> placemark =
         await placemarkFromCoordinates(latitude, longitude);
     return placemark;
   }
- 
+
   Future<void> _savePlace(double latitude, double longitude) async {
     final addressData = await getLocationAddress(latitude, longitude);
     final String street = addressData[0].street;
@@ -41,7 +51,7 @@ class _LocationInputState extends State<LocationInput> {
     final String locality = addressData[0].locality;
     final String country = addressData[0].country;
     final String address = '$street, $postalcode, $locality, $country';
- 
+
     setState(() {
       _pickedLocation = PlaceLocation(
         latitude: latitude,
@@ -50,17 +60,17 @@ class _LocationInputState extends State<LocationInput> {
       );
       _isGettingLocation = false;
     });
- 
+
     widget.onSelectPlace(_pickedLocation!.latitude, _pickedLocation!.longitude);
   }
- 
+
   void _getCurrentLocation() async {
     Location location = Location();
- 
+
     bool serviceEnabled;
     PermissionStatus permissionGranted;
     LocationData locationData;
- 
+
     serviceEnabled = await location.serviceEnabled();
     if (!serviceEnabled) {
       serviceEnabled = await location.requestService();
@@ -68,7 +78,7 @@ class _LocationInputState extends State<LocationInput> {
         return;
       }
     }
- 
+
     permissionGranted = await location.hasPermission();
     if (permissionGranted == PermissionStatus.denied) {
       permissionGranted = await location.requestPermission();
@@ -76,43 +86,45 @@ class _LocationInputState extends State<LocationInput> {
         return;
       }
     }
- 
+
     setState(() {
       _isGettingLocation = true;
     });
- 
+
     locationData = await location.getLocation();
     final lat = locationData.latitude;
     final lng = locationData.longitude;
- 
+
     if (lat == null || lng == null) {
       return;
     }
- 
+
     _savePlace(lat, lng);
   }
- 
+
   Future<void> _selectOnMap() async {
     final pickedLocation = await Navigator.of(context).push<LatLng>(
       MaterialPageRoute(
         fullscreenDialog: true,
-        builder: (ctx) => const MapScreen(isSelecting: true,),
+        builder: (ctx) => const MapScreen(
+          isSelecting: true,
+        ),
       ),
     );
- 
+
     if (pickedLocation == null) {
       return;
     }
- 
+
     _savePlace(pickedLocation.latitude, pickedLocation.longitude);
   }
- 
+
   @override
   void dispose() {
     mapController.dispose();
     super.dispose();
   }
- 
+
   @override
   Widget build(BuildContext context) {
     Widget previewContent = Text(
@@ -122,7 +134,7 @@ class _LocationInputState extends State<LocationInput> {
             color: Theme.of(context).colorScheme.onBackground,
           ),
     );
- 
+
     if (_pickedLocation != null) {
       previewContent = FlutterMap(
         mapController: mapController,
@@ -146,7 +158,7 @@ class _LocationInputState extends State<LocationInput> {
                 builder: (context) => const Icon(
                   Icons.location_on,
                   size: 25,
-                  color: Colors.blue,
+                  color: Colors.red,
                 ),
               ),
             ],
@@ -154,11 +166,11 @@ class _LocationInputState extends State<LocationInput> {
         ],
       );
     }
- 
+
     if (_isGettingLocation) {
       previewContent = const CircularProgressIndicator();
     }
- 
+
     return Column(
       children: [
         Container(

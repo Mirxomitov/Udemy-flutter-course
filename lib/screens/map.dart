@@ -2,38 +2,38 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
- 
+
 import 'package:favorite_places/models/places.dart';
- 
+
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({
     super.key,
     this.location = const PlaceLocation(
-      latitude: 65.01236,
-      longitude: 25.46816,
+      latitude: 41.345570,
+      longitude: 69.284599,
       address: '',
     ),
     this.isSelecting = true,
   });
- 
+
   final PlaceLocation location;
   final bool isSelecting;
- 
+
   @override
   ConsumerState<MapScreen> createState() {
     return _MapScreenState();
   }
 }
- 
+
 class _MapScreenState extends ConsumerState<MapScreen> {
   LatLng? _pickedLocation;
- 
-  void _selectLocation(dynamic tapPosn, LatLng posn) {
+
+  void _selectLocation(dynamic tapPosition, LatLng position) {
     setState(() {
-      _pickedLocation = posn;
+      _pickedLocation = position;
     });
   }
- 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,13 +68,13 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 Marker(
                   point: _pickedLocation ??
                       LatLng(
-                          widget.location.latitude,
-                          widget.location.longitude,
+                        widget.location.latitude,
+                        widget.location.longitude,
                       ),
                   builder: (context) => const Icon(
                     Icons.location_on,
                     size: 25,
-                    color: Colors.blue,
+                    color: Colors.red,
                   ),
                 ),
               ],
